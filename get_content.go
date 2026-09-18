@@ -12,11 +12,8 @@ func getHeadingFromHTML(html string) string {
 		return ""
 	}
 
-	heading := doc.Find("h1")
-	if heading.Length() == 0 {
-		return doc.Find("h2").First().Text()
-	}
-	return heading.First().Text()
+	heading := doc.Find("h1, h2").First().Text()
+	return strings.TrimSpace(heading)
 
 }
 
@@ -25,10 +22,12 @@ func getFirstParagraphFromHTML(html string) string {
 	if err != nil {
 		return ""
 	}
-
-	para := doc.Find("main p")
-	if para.Length() == 0 {
-		return doc.Find("p").First().Text()
+	main := doc.Find("main")
+	var para string
+	para = main.Find("p").First().Text()
+	if para == "" {
+		para = doc.Find("p").First().Text()
 	}
-	return para.First().Text()
+	return strings.TrimSpace(para)
+
 }
