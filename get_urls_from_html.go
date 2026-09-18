@@ -9,8 +9,8 @@ import (
 )
 
 func getURLsFromHTML(htmlBody string, baseURL *url.URL) ([]string, error) {
+
 	var urls []string
-	var links []string
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(htmlBody))
 	if err != nil {
 		return nil, fmt.Errorf("error trying to read from html - %w", err)
@@ -18,19 +18,23 @@ func getURLsFromHTML(htmlBody string, baseURL *url.URL) ([]string, error) {
 
 	doc.Find("a[href]").Each(func(_ int, s *goquery.Selection) {
 		href, exists := s.Attr("href")
-		if exists {
-			links = append(links, href)
+		if !exists {
+			fmt.Println("error trying to get href attribute from anchor tag")
+			return // exit form this callback iteration and move to next
 		}
-	})
 
-	for _, link := range links {
-		parsedURL, err := url.Parse(link)
+		if strings.TrimSpace(href) == "" {
+			return // exit form this callback iteration and move to next
+		}
+
+		parsedURL, err := url.Parse(href)
 		if err != nil {
-			return nil, fmt.Errorf("Error parsing href: %w", err)
+			return // ends this callback and continues to next iteration
 		}
 		resolvedURL := baseURL.ResolveReference(parsedURL)
 		urls = append(urls, resolvedURL.String())
-	}
+
+	})
 
 	return urls, nil
 
