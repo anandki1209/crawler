@@ -16,6 +16,10 @@ func main() {
 	}
 
 	baseUrl := argsWithoutProg[0]
-	fmt.Printf("starting crawl of: %s", baseUrl)
+	pages := make(map[string]int)
+	crawlPage(baseUrl, baseUrl, pages)
 
+	for k, v := range pages {
+		fmt.Printf("Visited this page %s for %d/n", k, v)
+	}
 }
