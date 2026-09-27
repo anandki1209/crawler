@@ -48,10 +48,7 @@ func (cfg *config) crawlPage(rawCurrentURL string) {
 		return
 	}
 	pageData := extractPageData(html, rawCurrentURL)
-
-	cfg.mu.Lock()
-	cfg.pages[normalizedURL] = pageData
-	cfg.mu.Unlock()
+	cfg.setPageData(normalizedURL, pageData)
 
 	fmt.Printf("crawling this page : %s\n", rawCurrentURL)
 
@@ -72,5 +69,12 @@ func (cfg *config) addPageVisit(normalizedURL string) (isFirst bool) {
 
 	cfg.pages[normalizedURL] = PageData{}
 	return true
+
+}
+
+func (cfg *config) setPageData(normalizedURL string, data PageData) {
+	cfg.mu.Lock()
+	defer cfg.mu.Unlock()
+	cfg.pages[normalizedURL] = data
 
 }
