@@ -16,10 +16,18 @@ func main() {
 	}
 
 	baseUrl := argsWithoutProg[0]
-	pages := make(map[string]int)
-	crawlPage(baseUrl, baseUrl, pages)
-
-	for k, v := range pages {
-		fmt.Printf("Visited this page %s for %d/n", k, v)
+	cfg, err := configure(baseUrl, 10)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
+	// blocking main until all goroutines gets completed
+	cfg.wg.Add(1)
+	go cfg.crawlPage(baseUrl)
+	cfg.wg.Wait()
+
+	for k := range cfg.pages {
+		fmt.Printf("found: %s\n", k)
+	}
+
 }
