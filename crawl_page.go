@@ -3,16 +3,7 @@ package main
 import (
 	"fmt"
 	"net/url"
-	"sync"
 )
-
-type config struct {
-	pages              map[string]PageData // keep track of pages we have crwaled
-	baseURL            *url.URL            // keep track of original base baseURL
-	mu                 *sync.Mutex         // ensures pages map is thread safe
-	concurrencyControl chan struct{}       // buffered channel of  empty struct
-	wg                 *sync.WaitGroup     // ensures main wait for all goroutines to finish first
-}
 
 func (cfg *config) crawlPage(rawCurrentURL string) {
 
@@ -56,25 +47,5 @@ func (cfg *config) crawlPage(rawCurrentURL string) {
 		cfg.wg.Add(1)
 		go cfg.crawlPage(url)
 	}
-
-}
-
-func (cfg *config) addPageVisit(normalizedURL string) (isFirst bool) {
-	cfg.mu.Lock()
-	defer cfg.mu.Unlock()
-	_, ok := cfg.pages[normalizedURL]
-	if ok {
-		return false
-	}
-
-	cfg.pages[normalizedURL] = PageData{}
-	return true
-
-}
-
-func (cfg *config) setPageData(normalizedURL string, data PageData) {
-	cfg.mu.Lock()
-	defer cfg.mu.Unlock()
-	cfg.pages[normalizedURL] = data
 
 }
