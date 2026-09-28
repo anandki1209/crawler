@@ -42,5 +42,8 @@ func main() {
 	for k := range cfg.pages {
 		fmt.Printf("found: %s\n", k)
 	}
+	if err := writeJSONReport(cfg.pages, "report.json"); err != nil {
+		fmt.Print(err)
+	}
 
 }
